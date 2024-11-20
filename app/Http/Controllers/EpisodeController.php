@@ -11,4 +11,16 @@ class EpisodeController extends Controller
     {
         return Episode::where('season_id', $seasonId)->get();
     }
+
+    public function uploadVideo(Request $request)
+{
+    $request->validate([
+        'video' => 'required|mimes:mp4|max:50000', // Обмеження на тип і розмір
+    ]);
+
+    $path = $request->file('video')->store('videos', 's3');
+
+    return response()->json(['path' => $path]);
+}
+
 }
