@@ -24,16 +24,27 @@ class SeriesController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'poster' => 'nullable|string',
-        ]);
+{
+    // Валідуємо дані
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'poster' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048', // додано для валідності зображень
+    ]);
 
-        $series = Series::create($data);
-        return response()->json($series, 201);
+    // Зберігаємо зображення, якщо воно є
+    if ($request->hasFile('poster')) {
+        $posterPath = $request->file('poster')->store('posters', 'public'); // Зберігаємо файл в папку 'storage/app/public/posters'
+        $data['poster'] = $posterPath;
     }
+
+    // Створюємо новий серіал
+    $series = Series::create($data);
+
+    // Повертаємо відповідь з новим серіалом
+    return response()->json($series, 201);
+}
+
 
     public function update(Request $request, $id)
     {
