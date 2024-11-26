@@ -49,13 +49,18 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'role' => $user->role,
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $user = $request->user(); // Отримуємо користувача
+        if ($user) {
+            $user->tokens()->delete(); // Видаляємо всі токени користувача
+            return response()->json(['message' => 'Successfully logged out']);
+        }
 
-        return response()->json(['message' => 'Logged out successfully']);
+        return response()->json(['message' => 'Unauthorized'], 401);
     }
 }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user'); // Значення за замовчуванням: "user"
+            $table->string('role')->default('admin'); // Значення за замовчуванням: "user"
         });
     }
 

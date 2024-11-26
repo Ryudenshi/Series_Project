@@ -42,16 +42,19 @@ export default {
     },
     methods: {
         async login() {
-            try {
-                const response = await axios.post('/login', {
-                    email: this.email,
-                    password: this.password,
-                });
+        try {
+            const response = await axios.post('/api/login', {
+                email: this.email,
+                password: this.password,
+            });
 
-                localStorage.setItem('token', response.data.access_token);
-                this.$router.push('/');
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('role', response.data.role); // Зберігаємо роль
+
+            this.$router.push('/');
             } catch (error) {
-                console.error(error.response.data.message);
+                console.error('Login failed:', error);
+                alert('Помилка входу!');
             }
         },
     },

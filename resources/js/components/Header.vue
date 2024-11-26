@@ -3,12 +3,20 @@
         <b-container>
             <b-navbar-brand href="/">Головна</b-navbar-brand>
             <b-navbar-nav>
+                <!-- Кнопка для адміністратора -->
+                <b-nav-item v-if="isAuthenticated && isAdmin" to="/admin" router>
+                    Панель адміністратора
+                </b-nav-item>
+
+                <!-- Кнопки для неавторизованих користувачів -->
                 <b-nav-item v-if="!isAuthenticated" to="/login" router>
                     Увійти
                 </b-nav-item>
                 <b-nav-item v-if="!isAuthenticated" to="/register" router>
                     Реєстрація
                 </b-nav-item>
+
+                <!-- Кнопка виходу -->
                 <b-nav-item v-if="isAuthenticated" @click="logout" href="#">
                     Вийти
                 </b-nav-item>
@@ -25,21 +33,30 @@ export default {
         isAuthenticated() {
             return !!localStorage.getItem('token');
         },
+        isAdmin() {
+            return localStorage.getItem('role') === 'admin'; // Перевірка ролі
+        },
     },
     methods: {
         async logout() {
-            try {
-                await axios.post('/api/logout', {}, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
-                localStorage.removeItem('token');
-                this.$router.push('/login');
-            } catch (error) {
-                console.error('Logout failed', error);
-            }
-        },
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('Token not found');
+
+        const response = await axios.post('/api/logout', {}, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        this.$router.push('/login');
+    } catch (error) {
+        console.error('Logout failed:', error.response?.data || error.message);
+        alert('Сталася помилка під час виходу!');
+    }
+    }
     },
 };
 </script>
