@@ -13,13 +13,12 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/series', [SeriesController::class, 'index']);
     Route::get('/series/{id}', [SeriesController::class, 'show']);
-    Route::post('/series', [SeriesController::class, 'store']);
-    Route::put('/series/{id}', [SeriesController::class, 'update']);
-    Route::delete('/series/{id}', [SeriesController::class, 'destroy']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/series', [SeriesController::class, 'store']);
+    Route::put('/series/{id}', [SeriesController::class, 'update']);
+    Route::delete('/series/{id}', [SeriesController::class, 'destroy']);
 });
 
 Route::get('/series/{seriesId}/seasons', [SeasonController::class, 'index']);

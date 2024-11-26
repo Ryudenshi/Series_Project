@@ -48,7 +48,7 @@ export default {
                 password: this.password,
             });
 
-            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('role', response.data.role); // Зберігаємо роль
 
             this.$router.push('/');
