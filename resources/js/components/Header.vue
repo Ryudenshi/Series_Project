@@ -29,7 +29,7 @@ export default {
     methods: {
         async logout() {
             try {
-                await axios.post('/logout', {}, {
+                await axios.post('/api/logout', {}, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },

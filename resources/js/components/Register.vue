@@ -61,7 +61,7 @@ export default {
 
                 // Зберегти токен в localStorage
                 localStorage.setItem('token', response.data.access_token);
-
+                console.log(response)
                 // Перенаправлення після успішної реєстрації
                 this.$router.push('/');
             } catch (error) {
