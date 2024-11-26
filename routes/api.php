@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\EpisodeController;
