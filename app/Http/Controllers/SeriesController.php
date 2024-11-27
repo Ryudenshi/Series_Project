@@ -25,25 +25,34 @@ class SeriesController extends Controller
 
     public function store(Request $request)
 {
-    // Валідуємо дані
-    $data = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'poster' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048', // додано для валідності зображень
-    ]);
+    try {
+        // Валідуємо дані
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'poster' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+        ]);
 
-    // Зберігаємо зображення, якщо воно є
-    if ($request->hasFile('poster')) {
-        $posterPath = $request->file('poster')->store('posters', 'public'); // Зберігаємо файл в папку 'storage/app/public/posters'
-        $data['poster'] = $posterPath;
+        // Зберігаємо зображення, якщо воно є
+        if ($request->hasFile('poster')) {
+            $posterPath = $request->file('poster')->store('posters', 'public');
+            $data['poster'] = $posterPath;
+        }
+
+        // Створюємо новий серіал
+        $series = Series::create($data);
+
+        // Повертаємо відповідь з новим серіалом
+        return response()->json($series, 201);
+    } catch (\Exception $e) {
+        // Логування помилки
+        \Log::error('Error creating series: ' . $e->getMessage());
+
+        // Повертаємо повідомлення про помилку
+        return response()->json(['error' => 'Не вдалося створити серіал.'], 500);
     }
-
-    // Створюємо новий серіал
-    $series = Series::create($data);
-
-    // Повертаємо відповідь з новим серіалом
-    return response()->json($series, 201);
 }
+
 
 
     public function update(Request $request, $id)

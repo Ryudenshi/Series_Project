@@ -1,9 +1,15 @@
 <template>
     <div>
         <h1>Адмін-панель</h1>
-        
+
         <!-- Кнопка для додавання серіалу -->
-        <b-button variant="primary" @click="showAddSeriesModal">Додати серіал</b-button>
+        <b-button variant="primary" @click="openSeriesModal">Додати серіал</b-button>
+
+        <!-- Кнопка для додавання сезону -->
+        <b-button variant="info" @click="openSeasonModal">Додати сезон до серіалу</b-button>
+
+        <!-- Кнопка для додавання епізоду -->
+        <b-button variant="warning" @click="openEpisodeModal">Додати епізод до сезону</b-button>
 
         <!-- Модальне вікно для додавання серіалу -->
         <b-modal v-model="showSeriesModal" title="Додати серіал">
@@ -22,8 +28,11 @@
         </b-modal>
 
         <!-- Модальне вікно для додавання сезону -->
-        <b-modal v-model="showAddSeasonModal" title="Додати сезон">
+        <b-modal v-model="showAddSeasonModal" title="Додати сезон до серіалу">
             <b-form @submit.prevent="addSeason">
+                <b-form-group label="ID серіалу">
+                    <b-form-input type="number" v-model="seriesId" required></b-form-input>
+                </b-form-group>
                 <b-form-group label="Назва сезону">
                     <b-form-input v-model="seasonTitle" required></b-form-input>
                 </b-form-group>
@@ -35,8 +44,11 @@
         </b-modal>
 
         <!-- Модальне вікно для додавання епізоду -->
-        <b-modal v-model="showAddEpisodeModal" title="Додати епізод">
+        <b-modal v-model="showAddEpisodeModal" title="Додати епізод до сезону">
             <b-form @submit.prevent="addEpisode">
+                <b-form-group label="ID сезону">
+                    <b-form-input type="number" v-model="seasonId" required></b-form-input>
+                </b-form-group>
                 <b-form-group label="Назва епізоду">
                     <b-form-input v-model="episodeTitle" required></b-form-input>
                 </b-form-group>
@@ -65,69 +77,71 @@ export default {
             seasonNumber: '',
             episodeTitle: '',
             episodeVideoUrl: '',
-            seriesId: null, // ID серіалу після його створення
-            seasonId: null, // ID сезону після його створення
+            seriesId: null, // ID серіалу для додавання сезону
+            seasonId: null, // ID сезону для додавання епізоду
         };
     },
     methods: {
-        // Відкриваємо модальне вікно для додавання серіалу
-        showAddSeriesModal() {
+        openSeriesModal() {
             this.showSeriesModal = true;
         },
+        openSeasonModal() {
+            this.showAddSeasonModal = true;
+        },
+        openEpisodeModal() {
+            this.showAddEpisodeModal = true;
+        },
 
-        // Обробка вибору файлу для постера
         handleFileChange(event) {
-            this.poster = event.target.files[0];
-        },
+    const file = event.target.files[0];
+    if (file) {
+        this.poster = file;
+    } else {
+        this.poster = null;
+    }
+    },
 
-        // Додаємо серіал
+
         async addSeries() {
-            let formData = new FormData();
-            formData.append('title', this.seriesTitle);
-            formData.append('description', this.seriesDescription);
-            if (this.poster) {
-                formData.append('poster', this.poster);
-            }
+    let formData = new FormData();
+    formData.append('title', this.seriesTitle);
+    formData.append('description', this.seriesDescription);
+    if (this.poster) {
+        formData.append('poster', this.poster);
+    }
 
-            try {
-                const response = await axios.post('/api/series', formData, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+    try {
+        const response = await axios.post('/api/series', formData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
 
-                // Зберігаємо ID серіалу для наступних операцій
-                this.seriesId = response.data.id;
+        this.seriesTitle = '';
+        this.seriesDescription = '';
+        this.poster = null;
+        this.showSeriesModal = false;
+        alert('Серіал успішно додано!');
+    } catch (error) {
+        console.error(error);
+        alert('Сталася помилка при додаванні серіалу.');
+    }
+    },
 
-                this.showSeriesModal = false;
-                this.showAddSeasonModal = true; // Відкриваємо форму для додавання сезону
 
-                alert('Серіал успішно додано!');
-            } catch (error) {
-                console.error(error.response.data.message);
-                alert('Помилка при додаванні серіалу');
-            }
-        },
-
-        // Додаємо сезон
         async addSeason() {
             try {
-                const response = await axios.post(`/api/series/${this.seriesId}/seasons`, {
+                await axios.post(`/api/series/${this.seriesId}/seasons`, {
                     title: this.seasonTitle,
                     season_number: this.seasonNumber,
                 }, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    }
+                    },
                 });
 
-                // Зберігаємо ID сезону для додавання епізодів
-                this.seasonId = response.data.id;
-
                 this.showAddSeasonModal = false;
-                this.showAddEpisodeModal = true; // Відкриваємо форму для додавання епізоду
-
                 alert('Сезон успішно додано!');
             } catch (error) {
                 console.error(error.response.data.message);
@@ -135,20 +149,18 @@ export default {
             }
         },
 
-        // Додаємо епізод
         async addEpisode() {
             try {
-                const response = await axios.post(`/api/seasons/${this.seasonId}/episodes`, {
+                await axios.post(`/api/seasons/${this.seasonId}/episodes`, {
                     title: this.episodeTitle,
                     video_url: this.episodeVideoUrl,
                 }, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    }
+                    },
                 });
 
                 this.showAddEpisodeModal = false;
-
                 alert('Епізод успішно додано!');
             } catch (error) {
                 console.error(error.response.data.message);
@@ -165,10 +177,6 @@ h1 {
 }
 
 .b-button {
-    margin-top: 10px;
-}
-
-.b-form-group {
-    margin-bottom: 15px;
+    margin: 5px;
 }
 </style>
