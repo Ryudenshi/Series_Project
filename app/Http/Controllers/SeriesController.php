@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Series;
 
 class SeriesController extends Controller
 {
     public function index()
     {
+        $series = Series::all();
+
         return Series::with('seasons.episodes')->get();
     }
 
@@ -25,6 +28,11 @@ class SeriesController extends Controller
 
     public function store(Request $request)
 {
+    // Перевіряємо роль користувача
+    if (Auth::user()->role !== 'admin') {
+        return response()->json(['message' => 'Access denied'], 403);
+    }
+
     try {
         // Валідуємо дані
         $data = $request->validate([
@@ -52,6 +60,7 @@ class SeriesController extends Controller
         return response()->json(['error' => 'Не вдалося створити серіал.'], 500);
     }
 }
+
 
 
 

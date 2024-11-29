@@ -15,13 +15,7 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory('/my_series_app/public/'),
-    routes:[
-        { path: '/login', component: Login },
-        { path: '/register', component: Register },
-        { path: '/', component: SeriesList },
-        { path: '/series/:id', component: SeriesDetail },
-        { path: '/admin', component: AdminPanel },
-    ]
+    routes,
 });
 
 export default router;

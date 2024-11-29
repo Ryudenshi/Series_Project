@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\Session\Middleware\AuthenticateSession::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \Illuminate\Routing\Middleware\RoleMiddleware::class,
     ];
 
     
@@ -41,6 +42,6 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'role' => \App\Http\Middleware\RoleMiddleware::class,  // Додаємо middleware
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

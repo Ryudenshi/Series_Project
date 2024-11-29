@@ -16,12 +16,13 @@ export default createStore({
     },
     actions: {
         fetchSeries({ commit }) {
-            return axios.get('/series')
-                .then(response => commit('setSeries', response.data))
+            return axios.get('/api/series')
+                .then(response => commit('setSeries', response.data.data || response.data))
                 .catch(err => console.error(err));
         },
+        
         fetchSeriesById({ commit }, id) {
-            return axios.get(`/series/${id}`)
+            return axios.get(`/api/series/${id}`)
                 .then(response => commit('setSelectedSeries', response.data))
                 .catch(err => console.error(err));
         },
