@@ -102,7 +102,7 @@ export default {
     },
 
 
-        async addSeries() {
+    async addSeries() {
     let formData = new FormData();
     formData.append('title', this.seriesTitle);
     formData.append('description', this.seriesDescription);
@@ -118,6 +118,7 @@ export default {
             },
         });
 
+        this.$store.dispatch('fetchSeries'); // Оновлення списку серіалів
         this.seriesTitle = '';
         this.seriesDescription = '';
         this.poster = null;
@@ -127,7 +128,8 @@ export default {
         console.error(error);
         alert('Сталася помилка при додаванні серіалу.');
     }
-    },
+},
+
 
 
         async addSeason() {

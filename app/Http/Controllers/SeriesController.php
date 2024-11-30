@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Series;
+use Illuminate\Support\Facades\Log;
+use Image;
+use Illuminate\Filesystem\FilesystemServiceProvider;
+// LOG_STACK=single
 
 class SeriesController extends Controller
 {
@@ -29,9 +33,9 @@ class SeriesController extends Controller
     public function store(Request $request)
 {
     // Перевіряємо роль користувача
-    if (Auth::user()->role !== 'admin') {
+    /*if (Auth::user()->role !== 'admin') {
         return response()->json(['message' => 'Access denied'], 403);
-    }
+    }*/
 
     try {
         // Валідуємо дані
@@ -43,7 +47,10 @@ class SeriesController extends Controller
 
         // Зберігаємо зображення, якщо воно є
         if ($request->hasFile('poster')) {
-            $posterPath = $request->file('poster')->store('posters', 'public');
+            $poster = $request->file('poster');
+            $image = Image::make($poster)->resize(300, 450);
+            $posterPath = 'posters/' . uniqid() . '.' . $poster->getClientOriginalExtension();
+            $image->save(storage_path('app/public/' . $posterPath));
             $data['poster'] = $posterPath;
         }
 
