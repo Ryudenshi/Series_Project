@@ -22,9 +22,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/series/{id}', [SeriesController::class, 'update']);
     Route::delete('/series/{id}', [SeriesController::class, 'destroy']);
     Route::post('/series/{seriesId}/seasons', [SeasonController::class, 'store']);
+    Route::post('/seasons/{seasonId}/episodes', [EpisodeController::class, 'store']);
 });
+
 Route::post('/logout', [AuthController::class, 'logout']);
 
+Route::get('/series/{seriesId}/seasons', [SeasonController::class, 'index']);
 Route::get('/series/{seriesId}/seasons', [SeasonController::class, 'index']);
 Route::get('/seasons/{seasonId}/episodes', [EpisodeController::class, 'index']);
 Route::post('/upload-video', [EpisodeController::class, 'uploadVideo']);

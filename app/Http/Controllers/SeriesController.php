@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Series;
 use Illuminate\Support\Facades\Log;
-use Image;
+use Intervention\Image\Facades\Image;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 // LOG_STACK=single
 
@@ -61,7 +61,7 @@ class SeriesController extends Controller
         return response()->json($series, 201);
     } catch (\Exception $e) {
         // Логування помилки
-        \Log::error('Error creating series: ' . $e->getMessage());
+        Log::error('Error creating series: ' . $e->getMessage());
 
         // Повертаємо повідомлення про помилку
         return response()->json(['error' => 'Не вдалося створити серіал.'], 500);

@@ -5,11 +5,7 @@
 
         <h2>Сезони:</h2>
         <b-form-group label="Оберіть сезон">
-            <b-form-select 
-                v-model="selectedSeason" 
-                :options="seasonsOptions" 
-                @change="loadEpisodes"
-            />
+            <b-form-select v-model="selectedSeason" :options="seasonsOptions" @change="loadEpisodes" />
         </b-form-group>
 
         <h3 v-if="selectedSeason">Епізоди:</h3>
@@ -47,11 +43,14 @@ export default {
     },
     computed: {
         seasonsOptions() {
-            return this.series?.seasons.map(season => ({
-                value: season.id,
-                text: `${season.title} (Сезон ${season.season_number})`,
-            })) || [];
-        },
+            return [
+                { value: null, text: 'Оберіть сезон' },
+                ...(this.series?.seasons.map(season => ({
+                    value: season.id,
+                    text: `${season.title} (Сезон ${season.season_number})`,
+                })) || [])
+            ];
+        }
     },
     created() {
         const seriesId = this.$route.params.id;
@@ -62,11 +61,19 @@ export default {
             try {
                 const response = await axios.get(`/api/series/${seriesId}`);
                 this.series = response.data;
+                this.selectedSeason = null; // Очищення вибору
             } catch (error) {
                 console.error('Помилка завантаження серіалу:', error);
             }
         },
+        onSeasonChange(value) {
+            console.log('Season changed to:', value);
+            if (value) {
+                this.loadEpisodes();
+            }
+        },
         async loadEpisodes() {
+            console.log('Season ID selected:', this.selectedSeason);
             if (!this.selectedSeason) return;
 
             try {

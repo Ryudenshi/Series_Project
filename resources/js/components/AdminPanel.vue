@@ -55,11 +55,17 @@
                     <b-form-select v-model="seasonId" :options="seasonsOptions" required />
                 </b-form-group>
 
+                <!-- Номер епізоду -->
+                <b-form-group label="Номер епізоду">
+                    <b-form-input type="number" v-model="episodeNumber" required />
+                </b-form-group>
+
                 <b-form-group label="Назва епізоду">
                     <b-form-input v-model="episodeTitle" required></b-form-input>
                 </b-form-group>
                 <b-form-group label="Відео">
                     <input type="file" @change="handleVideoChange" accept="video/*" class="form-control" />
+                    <b-form-input v-model="episodeVideoUrl" readonly />
                 </b-form-group>
 
                 <b-button type="submit" variant="success">Додати епізод</b-button>
@@ -103,11 +109,11 @@ export default {
 
         async fetchSeriesOptions() {
             try {
-            const response = await axios.get('/api/series');
-            this.seriesOptions = response.data.map(series => ({
-                value: series.id,
-                text: series.title,
-            }));
+                const response = await axios.get('/api/series');
+                this.seriesOptions = response.data.map(series => ({
+                    value: series.id,
+                    text: series.title,
+                }));
             } catch (error) {
                 console.error('Помилка при завантаженні серіалів:', error);
                 alert('Не вдалося завантажити серіали.');
@@ -122,7 +128,7 @@ export default {
                 this.seasonsOptions = response.data.map(season => ({
                     value: season.id,
                     text: `${season.title} (Сезон ${season.season_number})`,
-            }));
+                }));
             } catch (error) {
                 console.error('Помилка завантаження сезонів:', error);
                 this.seasonsOptions = [];
@@ -131,63 +137,65 @@ export default {
 
 
         handleFileChange(event) {
-    const file = event.target.files[0];
-    if (file) {
-        this.poster = file;
-    } else {
-        this.poster = null;
-    }
-    },
+            const file = event.target.files[0];
+            if (file) {
+                this.poster = file;
+            } else {
+                this.poster = null;
+            }
+        },
 
 
-    async addSeries() {
-    let formData = new FormData();
-    formData.append('title', this.seriesTitle);
-    formData.append('description', this.seriesDescription);
-    if (this.poster) {
-        formData.append('poster', this.poster);
-    }
+        async addSeries() {
+            let formData = new FormData();
+            formData.append('title', this.seriesTitle);
+            formData.append('description', this.seriesDescription);
+            if (this.poster) {
+                formData.append('poster', this.poster);
+            }
 
-    try {
-        const response = await axios.post('/api/series', formData, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+            try {
+                const response = await axios.post('/api/series', formData, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
 
-        this.$store.dispatch('fetchSeries'); // Оновлення списку серіалів
-        this.seriesTitle = '';
-        this.seriesDescription = '';
-        this.poster = null;
-        this.showSeriesModal = false;
-        alert('Серіал успішно додано!');
-    } catch (error) {
-        console.error(error);
-        alert('Сталася помилка при додаванні серіалу.');
-    }
-},
+                this.$store.dispatch('fetchSeries'); // Оновлення списку серіалів
+                this.seriesTitle = '';
+                this.seriesDescription = '';
+                this.poster = null;
+                this.showSeriesModal = false;
+                alert('Серіал успішно додано!');
+            } catch (error) {
+                console.error(error);
+                alert('Сталася помилка при додаванні серіалу.');
+            }
+        },
 
-async handleVideoChange(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+        async handleVideoChange(event) {
+            const file = event.target.files[0];
+            console.log('Файл вибрано:', file);
+            if (!file) return;
 
-    let formData = new FormData();
-    formData.append('video', file);
+            let formData = new FormData();
+            formData.append('video', file);
 
-    try {
-        const response = await axios.post('/api/upload-video', formData, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        this.episodeVideoUrl = response.data.path; // Зберігаємо URL відео
-    } catch (error) {
-        console.error('Помилка завантаження відео:', error);
-        alert('Не вдалося завантажити відео.');
-    }
-},
+            try {
+                const response = await axios.post('/api/upload-video', formData, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                this.episodeVideoUrl = response.data.path; // Перевірте, чи повертається `path`
+                alert('Відео успішно завантажено!');
+            } catch (error) {
+                console.error('Помилка завантаження відео:', error);
+                alert('Не вдалося завантажити відео.');
+            }
+        },
 
 
         async addSeason() {
@@ -210,9 +218,17 @@ async handleVideoChange(event) {
         },
 
         async addEpisode() {
+            console.log('URL відео перед додаванням епізоду:', this.episodeVideoUrl);
+
+            if (!this.episodeVideoUrl) {
+                alert('Будь ласка, завантажте відео перед додаванням епізоду.');
+                return;
+            }
+
             try {
                 await axios.post(`/api/seasons/${this.seasonId}/episodes`, {
                     title: this.episodeTitle,
+                    episode_number: this.episodeNumber,
                     video_url: this.episodeVideoUrl,
                 }, {
                     headers: {
@@ -226,7 +242,7 @@ async handleVideoChange(event) {
                 console.error(error.response.data.message);
                 alert('Помилка при додаванні епізоду');
             }
-        },  
+        },
     },
     created() {
         this.fetchSeriesOptions();
