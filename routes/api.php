@@ -21,6 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/series', [SeriesController::class, 'store']);
     Route::put('/series/{id}', [SeriesController::class, 'update']);
     Route::delete('/series/{id}', [SeriesController::class, 'destroy']);
+    Route::post('/series/{seriesId}/seasons', [SeasonController::class, 'store']);
 });
 Route::post('/logout', [AuthController::class, 'logout']);
 

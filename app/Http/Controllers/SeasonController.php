@@ -12,4 +12,18 @@ class SeasonController extends Controller
     {
         return Season::where('series_id', $seriesId)->with('episodes')->get();
     }
+
+    public function store(Request $request, $seriesId)
+{
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'season_number' => 'required|integer|min:1',
+    ]);
+
+    $data['series_id'] = $seriesId;
+
+    $season = Season::create($data);
+
+    return response()->json($season, 201);
+}
 }
