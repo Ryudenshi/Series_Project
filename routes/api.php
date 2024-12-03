@@ -25,7 +25,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/seasons/{seasonId}/episodes', [EpisodeController::class, 'store']);
 });
 
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/series/{seriesId}/seasons', [SeasonController::class, 'index']);
 Route::get('/seasons/{seasonId}/episodes', [EpisodeController::class, 'index']);

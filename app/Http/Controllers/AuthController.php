@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+//use Laravel\Sanctum\HasApiTokens;
 
 class AuthController extends Controller
 {
+    
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -40,6 +42,7 @@ class AuthController extends Controller
         ]);
     
         if (Auth::attempt($credentials)) {
+            /** @var \App\Models\User $user **/
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
     
