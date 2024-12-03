@@ -5,7 +5,7 @@
 
         <h2>Сезони:</h2>
         <b-form-group label="Оберіть сезон">
-            <b-form-select v-model="selectedSeason" :options="seasonsOptions" @change="loadEpisodes" />
+            <b-form-select v-model="selectedSeason" :options="seasonsOptions" />
         </b-form-group>
 
         <h3 v-if="selectedSeason">Епізоди:</h3>
@@ -35,57 +35,80 @@ export default {
     },
     data() {
         return {
-            series: null,
-            selectedSeason: null,
-            episodes: [],
-            currentEpisode: null,
+            series: null, // Інформація про серіал
+            selectedSeason: null, // Вибраний сезон
+            seasonsOptions: [{ value: null, text: 'Оберіть сезон' }], // Опції для випадаючого списку
+            episodes: [], // Список епізодів
+            currentEpisode: null, // Поточний епізод
         };
     },
-    computed: {
-        seasonsOptions() {
-            return [
-                { value: null, text: 'Оберіть сезон' },
-                ...(this.series?.seasons.map(season => ({
-                    value: season.id,
-                    text: `${season.title} (Сезон ${season.season_number})`,
-                })) || [])
-            ];
-        }
+    watch: {
+        selectedSeason(newSeason) {
+            if (newSeason) {
+                this.loadEpisodes();
+            }
+        },
     },
     created() {
-        const seriesId = this.$route.params.id;
-        this.fetchSeries(seriesId);
+        const seriesId = this.$route.params.id; // Отримання ID серіалу з маршруту
+        this.fetchSeries(seriesId); // Завантаження серіалу
+        this.fetchSeasons(seriesId); // Завантаження сезонів
     },
     methods: {
         async fetchSeries(seriesId) {
             try {
                 const response = await axios.get(`/api/series/${seriesId}`);
-                this.series = response.data;
-                this.selectedSeason = null; // Очищення вибору
+                this.series = response.data; // Збереження інформації про серіал
             } catch (error) {
                 console.error('Помилка завантаження серіалу:', error);
             }
         },
-        onSeasonChange(value) {
-            console.log('Season changed to:', value);
-            if (value) {
-                this.loadEpisodes();
+        async fetchSeasons(seriesId) {
+            try {
+                const response = await axios.get(`/api/series/${seriesId}/seasons`);
+                this.seasonsOptions = [
+                    { value: null, text: 'Оберіть сезон' },
+                    ...response.data.map(season => ({
+                        value: season.id,
+                        text: `${season.title} (Сезон ${season.season_number})`,
+                    })),
+                ];
+            } catch (error) {
+                console.error('Помилка завантаження сезонів:', error);
+                this.seasonsOptions = [{ value: null, text: 'Оберіть сезон' }];
             }
         },
         async loadEpisodes() {
-            console.log('Season ID selected:', this.selectedSeason);
             if (!this.selectedSeason) return;
 
             try {
                 const response = await axios.get(`/api/seasons/${this.selectedSeason}/episodes`);
-                this.episodes = response.data;
+                this.episodes = response.data; // Збереження епізодів
             } catch (error) {
                 console.error('Помилка завантаження епізодів:', error);
+                this.episodes = [];
             }
         },
         playEpisode(episode) {
-            this.currentEpisode = episode;
+            this.currentEpisode = episode; // Встановлення поточного епізоду
         },
     },
 };
 </script>
+
+<style scoped>
+h1,
+h2,
+h3 {
+    margin-bottom: 1rem;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 0.5rem 0;
+}
+</style>

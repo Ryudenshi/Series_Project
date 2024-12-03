@@ -33,7 +33,6 @@
                 <b-form-group label="Серіал">
                     <b-form-select v-model="seriesId" :options="seriesOptions" required></b-form-select>
                 </b-form-group>
-
                 <b-form-group label="Назва сезону">
                     <b-form-input v-model="seasonTitle" required></b-form-input>
                 </b-form-group>
@@ -47,24 +46,41 @@
         <!-- Модальне вікно для додавання епізоду -->
         <b-modal v-model="showAddEpisodeModal" title="Додати епізод до сезону">
             <b-form @submit.prevent="addEpisode">
+                <!-- Вибір серіалу -->
                 <b-form-group label="Серіал">
-                    <b-form-select v-model="seriesId" :options="seriesOptions" @change="fetchSeasons" required />
+                    <b-form-select 
+                        v-model="seriesId" 
+                        :options="seriesOptions" 
+                        @change="fetchSeasons" 
+                        required
+                    />
                 </b-form-group>
 
+                <!-- Вибір сезону -->
                 <b-form-group label="Сезон" v-if="seasonsOptions.length > 0">
-                    <b-form-select v-model="seasonId" :options="seasonsOptions" required />
+                    <b-form-select 
+                        v-model="seasonId" 
+                        :options="seasonsOptions" 
+                        required
+                    />
                 </b-form-group>
 
                 <!-- Номер епізоду -->
                 <b-form-group label="Номер епізоду">
                     <b-form-input type="number" v-model="episodeNumber" required />
                 </b-form-group>
-
+                <!-- Назва епізоду -->
                 <b-form-group label="Назва епізоду">
-                    <b-form-input v-model="episodeTitle" required></b-form-input>
+                    <b-form-input v-model="episodeTitle" required />
                 </b-form-group>
+                <!-- Відео -->
                 <b-form-group label="Відео">
-                    <input type="file" @change="handleVideoChange" accept="video/*" class="form-control" />
+                    <input 
+                        type="file" 
+                        @change="handleVideoChange" 
+                        accept="video/*" 
+                        class="form-control" 
+                    />
                     <b-form-input v-model="episodeVideoUrl" readonly />
                 </b-form-group>
 
@@ -80,8 +96,8 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            seasonsOptions: [],
             seriesOptions: [],
+            seasonsOptions: [],
             showSeriesModal: false,
             showAddSeasonModal: false,
             showAddEpisodeModal: false,
@@ -94,6 +110,7 @@ export default {
             episodeVideoUrl: '',
             seriesId: null,
             seasonId: null,
+            episodeNumber: '',
         };
     },
     methods: {
@@ -135,7 +152,6 @@ export default {
             }
         },
 
-
         handleFileChange(event) {
             const file = event.target.files[0];
             if (file) {
@@ -144,7 +160,6 @@ export default {
                 this.poster = null;
             }
         },
-
 
         async addSeries() {
             let formData = new FormData();
@@ -155,14 +170,14 @@ export default {
             }
 
             try {
-                const response = await axios.post('/api/series', formData, {
+                await axios.post('/api/series', formData, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                         'Content-Type': 'multipart/form-data',
                     },
                 });
 
-                this.$store.dispatch('fetchSeries'); // Оновлення списку серіалів
+                this.fetchSeriesOptions();
                 this.seriesTitle = '';
                 this.seriesDescription = '';
                 this.poster = null;
@@ -176,7 +191,6 @@ export default {
 
         async handleVideoChange(event) {
             const file = event.target.files[0];
-            console.log('Файл вибрано:', file);
             if (!file) return;
 
             let formData = new FormData();
@@ -189,14 +203,13 @@ export default {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                this.episodeVideoUrl = response.data.path; // Перевірте, чи повертається `path`
+                this.episodeVideoUrl = response.data.path;
                 alert('Відео успішно завантажено!');
             } catch (error) {
                 console.error('Помилка завантаження відео:', error);
                 alert('Не вдалося завантажити відео.');
             }
         },
-
 
         async addSeason() {
             try {
@@ -218,8 +231,6 @@ export default {
         },
 
         async addEpisode() {
-            console.log('URL відео перед додаванням епізоду:', this.episodeVideoUrl);
-
             if (!this.episodeVideoUrl) {
                 alert('Будь ласка, завантажте відео перед додаванням епізоду.');
                 return;
@@ -254,7 +265,6 @@ export default {
 h1 {
     margin-bottom: 1rem;
 }
-
 .b-button {
     margin: 5px;
 }

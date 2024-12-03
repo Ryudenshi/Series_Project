@@ -14,16 +14,16 @@ class SeasonController extends Controller
     }
 
     public function store(Request $request, $seriesId)
-{
-    $data = $request->validate([
-        'title' => 'required|string|max:255',
-        'season_number' => 'required|integer|min:1',
-    ]);
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'season_number' => 'required|integer|min:1',
+        ]);
 
-    $data['series_id'] = $seriesId;
+        $data['series_id'] = $seriesId;
 
-    $season = Season::create($data);
+        $season = Season::create($data);
 
-    return response()->json($season, 201);
-}
+        return response()->json($season, 201);
+    }
 }

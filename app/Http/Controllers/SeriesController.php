@@ -15,7 +15,7 @@ class SeriesController extends Controller
     public function index()
     {
         $series = Series::all();
-
+        //return Series::with('seasons.episodes')->paginate(10);
         return Series::with('seasons.episodes')->get();
     }
 
