@@ -20,7 +20,7 @@
 
         <div v-if="currentEpisode">
             <h3>Відтворення: {{ currentEpisode.title }}</h3>
-            <VideoPlayer :videoUrl="currentEpisode.video_url" />
+            <VideoPlayer v-if="currentEpisode" :videoUrl="currentEpisode.video_url" />
         </div>
     </div>
 </template>
@@ -35,11 +35,11 @@ export default {
     },
     data() {
         return {
-            series: null, // Інформація про серіал
-            selectedSeason: null, // Вибраний сезон
-            seasonsOptions: [{ value: null, text: 'Оберіть сезон' }], // Опції для випадаючого списку
-            episodes: [], // Список епізодів
-            currentEpisode: null, // Поточний епізод
+            series: null, 
+            selectedSeason: null,
+            seasonsOptions: [{ value: null, text: 'Оберіть сезон' }],
+            episodes: [],
+            currentEpisode: null,
         };
     },
     watch: {

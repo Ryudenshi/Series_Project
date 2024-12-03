@@ -1,13 +1,6 @@
 <template>
     <div>
-        <video
-            id="video-player"
-            class="video-js vjs-default-skin"
-            controls
-            preload="auto"
-            :data-setup="{}"
-            :poster="poster"
-        >
+        <video ref="videoPlayer" class="video-js vjs-default-skin" controls preload="auto" :poster="poster">
             <source :src="videoUrl" type="video/mp4" />
             Ваш браузер не підтримує відтворення відео.
         </video>
@@ -16,6 +9,7 @@
 
 <script>
 import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
 
 export default {
     props: {
@@ -29,13 +23,24 @@ export default {
         },
     },
     mounted() {
-        this.player = videojs(this.$refs.videoPlayer, {}, function onPlayerReady() {
-            console.log('Player is ready!');
+        if (!this.videoUrl) {
+            console.error('Помилка: URL відео відсутній або недійсний');
+            return;
+        }
+
+        this.player = videojs(this.$refs.videoPlayer, {}, () => {
+            console.log('Video player is ready');
+        });
+
+        this.player.on('error', () => {
+            const error = this.player.error();
+            console.error('VideoJS Error:', error);
         });
     },
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.player) {
             this.player.dispose();
+            this.player = null;
         }
     },
 };
