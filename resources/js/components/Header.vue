@@ -1,7 +1,7 @@
 <template>
     <b-navbar type="light" variant="light" class="mb-3">
         <b-container>
-            <b-navbar-brand href="/">Головна</b-navbar-brand>
+            <b-navbar-brand href="http://localhost/my_series_app/public/">Головна</b-navbar-brand>
             <b-navbar-nav>
                 <!-- Кнопка для адміністратора -->
                 <b-nav-item v-if="isAuthenticated && isAdmin" to="/admin" router>
