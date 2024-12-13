@@ -48,9 +48,13 @@ class SeriesController extends Controller
         // Зберігаємо зображення, якщо воно є
         if ($request->hasFile('poster')) {
             $poster = $request->file('poster');
+            Log::info('Зображення отримано: ' . $poster->getClientOriginalName());
+            
             $image = Image::make($poster)->resize(300, 450);
             $posterPath = 'posters/' . uniqid() . '.' . $poster->getClientOriginalExtension();
             $image->save(storage_path('app/public/' . $posterPath));
+            Log::info('Зображення збережено: ' . $posterPath);
+
             $data['poster'] = $posterPath;
         }
 

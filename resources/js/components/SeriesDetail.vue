@@ -10,14 +10,14 @@
         </div>
 
         <div class="seasons-section">
-            <h2>Сезони:</h2>
+            <h2>Seasons:</h2>
             <b-form-group label="Оберіть сезон" class="season-select-container">
                 <b-form-select v-model="selectedSeason" :options="seasonsOptions" class="season-select" />
             </b-form-group>
         </div>
 
         <div v-if="selectedSeason" class="episodes-section">
-            <h3>Епізоди:</h3>
+            <h3>Episodes:</h3>
             <div class="episode-list" v-if="episodes.length > 0">
                 <div v-for="episode in episodes" :key="episode.id" class="episode-card">
                     <button class="episode-btn" @click.prevent="playEpisode(episode)">
@@ -25,11 +25,11 @@
                     </button>
                 </div>
             </div>
-            <p v-else>Немає доступних епізодів для цього сезону.</p>
+            <p v-else>This season have no episodes yet</p>
         </div>
 
         <div v-if="currentEpisode" class="current-episode">
-            <h3>Відтворення: {{ currentEpisode.title }}</h3>
+            <h3>Video: {{ currentEpisode.title }}</h3>
             <VideoPlayer v-if="currentEpisode" :videoUrl="currentEpisode.video_url" />
         </div>
     </div>
@@ -48,7 +48,7 @@ export default {
             defaultPoster: 'https://via.placeholder.com/150?text=No+Poster',
             series: null,
             selectedSeason: null,
-            seasonsOptions: [{ value: null, text: 'Оберіть сезон' }],
+            seasonsOptions: [{ value: null, text: 'Chouse season' }],
             episodes: [],
             currentEpisode: null,
         };
@@ -71,22 +71,22 @@ export default {
                 const response = await axios.get(`/api/series/${seriesId}`);
                 this.series = response.data;
             } catch (error) {
-                console.error('Помилка завантаження серіалу:', error);
+                console.error('Series loading failed:', error);
             }
         },
         async fetchSeasons(seriesId) {
             try {
                 const response = await axios.get(`/api/series/${seriesId}/seasons`);
                 this.seasonsOptions = [
-                    { value: null, text: 'Оберіть сезон' },
+                    { value: null, text: 'Season' },
                     ...response.data.map(season => ({
                         value: season.id,
-                        text: `${season.title} (Сезон ${season.season_number})`,
+                        text: `${season.title} (Season ${season.season_number})`,
                     })),
                 ];
             } catch (error) {
-                console.error('Помилка завантаження сезонів:', error);
-                this.seasonsOptions = [{ value: null, text: 'Оберіть сезон' }];
+                console.error('Season loading failed:', error);
+                this.seasonsOptions = [{ value: null, text: 'Chouse season' }];
             }
         },
         async loadEpisodes() {
@@ -96,7 +96,7 @@ export default {
                 const response = await axios.get(`/api/seasons/${this.selectedSeason}/episodes`);
                 this.episodes = response.data;
             } catch (error) {
-                console.error('Помилка завантаження епізодів:', error);
+                console.error('Episode loading failed:', error);
                 this.episodes = [];
             }
         },

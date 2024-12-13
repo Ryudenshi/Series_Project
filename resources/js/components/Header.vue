@@ -3,25 +3,25 @@
         <b-container>
             <div class="navbar-content">
                 <b-navbar-brand href="http://localhost/my_series_app/public/" class="navbar-brand">
-                    Головна
+                    SERIESMEGA
                 </b-navbar-brand>
                 <b-navbar-nav class="ml-auto">
                     <!-- Кнопка для адміністратора -->
                     <b-nav-item v-if="isAuthenticated && isAdmin" to="/admin" router>
-                        Панель адміністратора
+                        Admin panel
                     </b-nav-item>
 
                     <!-- Кнопки для неавторизованих користувачів -->
                     <b-nav-item v-if="!isAuthenticated" to="/login" router>
-                        Увійти
+                        Sing-in
                     </b-nav-item>
                     <b-nav-item v-if="!isAuthenticated" to="/register" router>
-                        Реєстрація
+                        Registration
                     </b-nav-item>
 
                     <!-- Кнопка виходу -->
                     <b-nav-item v-if="isAuthenticated" @click="logout" href="#">
-                        Вийти
+                        Logout
                     </b-nav-item>
                 </b-navbar-nav>
             </div>
