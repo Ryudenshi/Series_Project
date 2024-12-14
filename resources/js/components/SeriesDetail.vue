@@ -1,7 +1,7 @@
 <template>
     <div class="series-detail">
         <div class="detail-header">
-            <img :src="series?.poster ? `/storage/${series.poster}` : defaultPoster" alt="Постер серіалу"
+            <img :src="series?.poster ? `/my_series_app/storage/app/public/${series.poster}` : defaultPoster" alt="Постер серіалу"
                 class="series-poster" />
             <div class="series-info">
                 <h1>{{ series?.title }}</h1>
@@ -70,8 +70,17 @@ export default {
             try {
                 const response = await axios.get(`/api/series/${seriesId}`);
                 this.series = response.data;
+                
             } catch (error) {
                 console.error('Series loading failed:', error);
+            }
+        },
+        async validateImageUrl(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch {
+                return false;
             }
         },
         async fetchSeasons(seriesId) {

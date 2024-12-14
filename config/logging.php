@@ -82,6 +82,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'json' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/json.log'),
+            'level' => 'debug',
+            'formatter' => Monolog\Formatter\JsonFormatter::class, // Формат логів у JSON
+        ],
+
         'papertrail' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
@@ -89,7 +96,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],

@@ -6,7 +6,7 @@
             <div v-if="seriesList && seriesList.length" class="series-grid">
                 <router-link v-for="series in seriesList" :key="series.id" :to="`/series/${series.id}`"
                     class="series-card">
-                    <img :src="series.poster ? `/storage/${series.poster}` : defaultPoster" alt="Постер серіалу"
+                    <img :src="series.poster ? `/my_series_app/storage/app/public/${series.poster}` : defaultPoster" alt="Постер серіалу"
                         class="series-poster" />
                     <div class="overlay">
                         <h3 class="series-title">{{ series.title }}</h3>
