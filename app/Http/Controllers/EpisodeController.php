@@ -24,18 +24,25 @@ class EpisodeController extends Controller
         return response()->json($series);
     }
 
-
     public function uploadVideo(Request $request)
     {
         $request->validate([
             'video' => 'required|mimes:mp4|max:50000', // Обмеження на тип і розмір
         ]);
 
-        $path = $request->file('video')->store('videos', 's3');
-        $url = config('filesystems.disks.s3.url') . '/' . $path; // Формування абсолютного URL
+        // Отримуємо оригінальну назву файлу
+        $fileName = $request->file('video')->getClientOriginalName();
+
+        // Завантажуємо файл на S3 без додаткових папок
+        Storage::disk('s3')->put($fileName, file_get_contents($request->file('video')));
+
+        // Формуємо абсолютний URL
+        $url = 'https://' . env('AWS_BUCKET') . '.s3.' . env('AWS_DEFAULT_REGION') . '.amazonaws.com/' . $fileName;
 
         return response()->json(['path' => $url]); // Повертаємо URL
     }
+
+
 
     public function store(Request $request, $seasonId)
     {

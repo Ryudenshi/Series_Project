@@ -1,8 +1,11 @@
 <template>
     <div class="series-detail">
         <div class="detail-header">
-            <img :src="series?.poster ? `/my_series_app/storage/app/public/${series.poster}` : defaultPoster" alt="Постер серіалу"
-                class="series-poster" />
+            <img
+                :src="series?.poster ? `/my_series_app/storage/app/public/${series.poster}` : defaultPoster"
+                alt="Постер серіалу"
+                class="series-poster"
+            />
             <div class="series-info">
                 <h1>{{ series?.title }}</h1>
                 <p class="series-description">{{ series?.description }}</p>
@@ -11,33 +14,50 @@
 
         <div class="seasons-section">
             <h2>Seasons:</h2>
-            <b-form-group label="Оберіть сезон" class="season-select-container">
-                <b-form-select v-model="selectedSeason" :options="seasonsOptions" class="season-select" />
+            <b-form-group
+                label="Оберіть сезон"
+                class="season-select-container"
+            >
+                <b-form-select
+                    v-model="selectedSeason"
+                    :options="seasonsOptions"
+                    class="season-select"
+                />
             </b-form-group>
         </div>
 
         <div v-if="selectedSeason" class="episodes-section">
             <h3>Episodes:</h3>
             <div class="episode-list" v-if="episodes.length > 0">
-                <div v-for="episode in episodes" :key="episode.id" class="episode-card">
-                    <button class="episode-btn" @click.prevent="playEpisode(episode)">
+                <div
+                    v-for="episode in episodes"
+                    :key="episode.id"
+                    class="episode-card"
+                >
+                    <button
+                        class="episode-btn"
+                        @click.prevent="playEpisode(episode)"
+                    >
                         {{ episode.episode_number }}
                     </button>
                 </div>
             </div>
-            <p v-else>This season have no episodes yet</p>
+            <p v-else>This season has no episodes yet</p>
         </div>
 
         <div v-if="currentEpisode" class="current-episode">
             <h3>Video: {{ currentEpisode.title }}</h3>
-            <VideoPlayer v-if="currentEpisode" :videoUrl="currentEpisode.video_url" />
+            <VideoPlayer
+                v-if="currentEpisode"
+                :videoUrl="currentEpisode.video_url"
+            />
         </div>
     </div>
 </template>
 
 <script>
-import VideoPlayer from './VideoPlayer.vue';
-import axios from 'axios';
+import VideoPlayer from "./VideoPlayer.vue";
+import axios from "axios";
 
 export default {
     components: {
@@ -45,10 +65,10 @@ export default {
     },
     data() {
         return {
-            defaultPoster: 'https://via.placeholder.com/150?text=No+Poster',
+            defaultPoster: "https://via.placeholder.com/150?text=No+Poster",
             series: null,
             selectedSeason: null,
-            seasonsOptions: [{ value: null, text: 'Chouse season' }],
+            seasonsOptions: [{ value: null, text: "Chouse season" }],
             episodes: [],
             currentEpisode: null,
         };
@@ -70,42 +90,37 @@ export default {
             try {
                 const response = await axios.get(`/api/series/${seriesId}`);
                 this.series = response.data;
-                
             } catch (error) {
-                console.error('Series loading failed:', error);
-            }
-        },
-        async validateImageUrl(url) {
-            try {
-                const response = await fetch(url, { method: 'HEAD' });
-                return response.ok;
-            } catch {
-                return false;
+                console.error("Series loading failed:", error);
             }
         },
         async fetchSeasons(seriesId) {
             try {
-                const response = await axios.get(`/api/series/${seriesId}/seasons`);
+                const response = await axios.get(
+                    `/api/series/${seriesId}/seasons`
+                );
                 this.seasonsOptions = [
-                    { value: null, text: 'Season' },
-                    ...response.data.map(season => ({
+                    { value: null, text: "Season" },
+                    ...response.data.map((season) => ({
                         value: season.id,
                         text: `${season.title} (Season ${season.season_number})`,
                     })),
                 ];
             } catch (error) {
-                console.error('Season loading failed:', error);
-                this.seasonsOptions = [{ value: null, text: 'Chouse season' }];
+                console.error("Season loading failed:", error);
+                this.seasonsOptions = [{ value: null, text: "Chouse season" }];
             }
         },
         async loadEpisodes() {
             if (!this.selectedSeason) return;
 
             try {
-                const response = await axios.get(`/api/seasons/${this.selectedSeason}/episodes`);
+                const response = await axios.get(
+                    `/api/seasons/${this.selectedSeason}/episodes`
+                );
                 this.episodes = response.data;
             } catch (error) {
-                console.error('Episode loading failed:', error);
+                console.error("Episode loading failed:", error);
                 this.episodes = [];
             }
         },
