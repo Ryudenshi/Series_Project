@@ -48,21 +48,12 @@
             <b-form @submit.prevent="addEpisode">
                 <!-- Вибір серіалу -->
                 <b-form-group label="Серіал">
-                    <b-form-select 
-                        v-model="seriesId" 
-                        :options="seriesOptions" 
-                        @change="fetchSeasons" 
-                        required
-                    />
+                    <b-form-select v-model="seriesId" :options="seriesOptions" @change="fetchSeasons" required />
                 </b-form-group>
 
                 <!-- Вибір сезону -->
                 <b-form-group label="Сезон" v-if="seasonsOptions.length > 0">
-                    <b-form-select 
-                        v-model="seasonId" 
-                        :options="seasonsOptions" 
-                        required
-                    />
+                    <b-form-select v-model="seasonId" :options="seasonsOptions" required />
                 </b-form-group>
 
                 <!-- Номер епізоду -->
@@ -75,12 +66,7 @@
                 </b-form-group>
                 <!-- Відео -->
                 <b-form-group label="Відео">
-                    <input 
-                        type="file" 
-                        @change="handleVideoChange" 
-                        accept="video/*" 
-                        class="form-control" 
-                    />
+                    <input type="file" @change="handleVideoChange" accept="video/*" class="form-control" />
                     <b-form-input v-model="episodeVideoUrl" readonly />
                 </b-form-group>
 
@@ -189,26 +175,32 @@ export default {
             }
         },
 
-        async handleVideoChange(event) {
+        handleVideoChange(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            if (file.size > 50000000) { // 50MB
+                alert('Файл занадто великий. Максимальний розмір - 50MB.');
+                return;
+            }
 
             let formData = new FormData();
             formData.append('video', file);
 
-            try {
-                const response = await axios.post('/api/upload-video', formData, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
+            axios.post('/api/upload-video', formData, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then(response => {
+                    this.episodeVideoUrl = response.data.path;
+                    alert('Відео успішно завантажено!');
+                })
+                .catch(error => {
+                    console.error('Помилка завантаження відео:', error);
+                    alert('Не вдалося завантажити відео.');
                 });
-                this.episodeVideoUrl = response.data.path;
-                alert('Відео успішно завантажено!');
-            } catch (error) {
-                console.error('Помилка завантаження відео:', error);
-                alert('Не вдалося завантажити відео.');
-            }
         },
 
         async addSeason() {
@@ -265,6 +257,7 @@ export default {
 h1 {
     margin-bottom: 1rem;
 }
+
 .b-button {
     margin: 5px;
 }

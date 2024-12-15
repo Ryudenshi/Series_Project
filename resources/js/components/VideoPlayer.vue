@@ -7,7 +7,7 @@
             preload="auto"
             :poster="poster"
         >
-            <source :src="videoUrl" type="video/mp4" codecs="avc,aac\" />
+            <source :src="videoUrl" type="video/mp4" codecs="avc,aac" />
             Ваш браузер не підтримує відтворення відео.
         </video>
     </div>
@@ -28,50 +28,51 @@ export default {
             default: null,
         },
     },
+    watch: {
+        videoUrl(newUrl) {
+            if (this.player) {
+                this.updateVideoSource(newUrl);
+            }
+        },
+    },
     mounted() {
         if (!this.videoUrl) {
             console.error("Помилка: URL відео відсутній або недійсний");
             return;
         }
 
-        // Перевіряємо формат посилання (AWS або інше)
-        if (!this.isValidVideoUrl(this.videoUrl)) {
-            console.error(
-                `Недійсна URL для відео: ${this.videoUrl}. Перевірте, чи є це посиланням AWS або Presigned URL.`
-            );
-            return;
-        }
-
         // Ініціалізація Video.js
-        this.player = videojs(this.$refs.videoPlayer, {}, () => {
-            console.log("Video player is ready");
-        });
-
-        this.player.on("error", () => {
-            const error = this.player.error();
-            console.error("VideoJS Error:", error);
-        });
+        this.initializePlayer();
     },
     beforeUnmount() {
-        if (this.player) {
-            this.player.dispose();
-            this.player = null;
-        }
+        this.disposePlayer();
     },
     methods: {
-    isValidVideoUrl(url) {
-        // Базовий шаблон для AWS S3
-        const awsRegex = /^https:\/\/.*\.s3\.[a-z0-9-]+\.amazonaws\.com\/.+$/;
-        // Шаблон для Presigned URL
-        const presignedRegex = /^https:\/\/.*\?.*X-Amz-Signature=.*$/;
+        initializePlayer() {
+            this.player = videojs(this.$refs.videoPlayer, {}, () => {
+                console.log("Video player is ready");
+            });
 
-        // Вивід для налагодження
-        console.log('Перевірка URL:', url);
-
-        // Перевірка відповідності шаблонам
-        return awsRegex.test(url) || presignedRegex.test(url);
+            this.player.on("error", () => {
+                const error = this.player.error();
+                console.error("VideoJS Error:", error);
+            });
+        },
+        updateVideoSource(newUrl) {
+            if (this.player && newUrl) {
+                this.player.pause(); // Зупиняємо поточне відео
+                this.player.src({ src: newUrl, type: "video/mp4" }); // Оновлюємо джерело
+                this.player.load(); // Завантажуємо нове відео
+                this.player.play(); // Відтворюємо нове відео
+            }
+        },
+        disposePlayer() {
+            if (this.player) {
+                this.player.dispose();
+                this.player = null;
+            }
+        },
     },
-}
 };
 </script>
 
